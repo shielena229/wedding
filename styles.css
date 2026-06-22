@@ -82,7 +82,7 @@ body {
 .hero__eyebrow {
   text-transform: uppercase;
   letter-spacing: 7px;
-  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  font-size: clamp(1.19rem, 2.8vw, 1.47rem);  /* +40% */
   font-weight: 500;
   color: var(--sage-dark);
   margin-bottom: 20px;
@@ -90,7 +90,7 @@ body {
 .names {
   font-family: 'Great Vibes', cursive;
   font-weight: 400;
-  font-size: clamp(3.6rem, 13vw, 7rem);
+  font-size: clamp(5.04rem, 18.2vw, 9.8rem);  /* +40% */
   line-height: 1.05;
   color: var(--names-rose);
   display: flex;
@@ -102,11 +102,27 @@ body {
   font-size: 0.6em;
   color: var(--gold);
   line-height: 0.6;
+  animation: ampPop 0.7s ease-out 0.9s both;
+}
+/* Имена выплывают навстречу друг другу: «Елена» слева, «Павел» справа */
+.names span:first-child { animation: nameFromLeft 1.2s cubic-bezier(.22,.9,.3,1) both; }
+.names span:last-child  { animation: nameFromRight 1.2s cubic-bezier(.22,.9,.3,1) both; }
+@keyframes nameFromLeft {
+  from { opacity: 0; transform: translateX(-120%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes nameFromRight {
+  from { opacity: 0; transform: translateX(120%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ampPop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .hero__date {
   letter-spacing: 5px;
   text-transform: uppercase;
-  font-size: clamp(1.15rem, 2.8vw, 1.5rem);
+  font-size: clamp(1.61rem, 3.92vw, 2.1rem);  /* +40% */
   font-weight: 600;
   color: var(--sage-dark);
   margin: 28px 0 54px;
