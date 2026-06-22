@@ -199,6 +199,8 @@
           <label class="opt"><input type="radio" name="Присутствие" value="Не смогу прийти" /><span>Не смогу прийти</span></label>
         </fieldset>
 
+        <!-- Вопросы 3-4 показываются только тем, кто придёт -->
+        <div id="attendee-only" hidden>
         <!-- Вопрос 3 -->
         <fieldset class="field">
           <legend class="field__label">Уточните ваши предпочтения в алкоголе <span class="muted">(выберите 1 или несколько вариантов)</span></legend>
@@ -219,9 +221,10 @@
         <!-- Вопрос 4 -->
         <fieldset class="field">
           <legend class="field__label">Понадобится ли вам трансфер?</legend>
-          <label class="opt"><input type="radio" name="Трансфер" value="Да, едем на трансфере" required /><span>Да, едем на трансфере</span></label>
+          <label class="opt"><input type="radio" name="Трансфер" value="Да, едем на трансфере" /><span>Да, едем на трансфере</span></label>
           <label class="opt"><input type="radio" name="Трансфер" value="Нет, планируем быть за рулём своего авто" /><span>Нет, планируем быть за рулём своего авто</span></label>
         </fieldset>
+        </div>
 
         <button type="submit" class="btn">Отправить анкету</button>
         <p class="form-note" id="form-note"></p>
