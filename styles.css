@@ -669,7 +669,8 @@ textarea:focus {
 
 /* ===== Адаптив ===== */
 @media (max-width: 640px) {
-  body { font-size: 18px; }
+  html { font-size: 18px; }   /* база 16px → 18px: весь текст крупнее на ~2pt */
+  body { font-size: 20px; }
   .dots { display: none; }
   .details__cards { grid-template-columns: 1fr; }
   .opts-grid { grid-template-columns: 1fr; }
