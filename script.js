@@ -124,16 +124,24 @@ if (form) {
     note.textContent = '';
 
     try {
-      const res = await fetch(form.action, {
+      // AJAX-адрес FormSubmit — корректно работает из браузера (CORS) и отдаёт JSON
+      const res = await fetch('https://formsubmit.co/ajax/zeferina@mail.ru', {
         method: 'POST',
-        body: new FormData(form),
         headers: { Accept: 'application/json' },
+        body: new FormData(form),
       });
-      if (res.ok) {
+      const data = await res.json();
+      const ok = data && (data.success === 'true' || data.success === true);
+      if (ok) {
         form.reset();
+        note.style.color = '';
         note.textContent = 'Спасибо! Ваш ответ отправлен. Ждём встречи 21 августа ♥';
+      } else if (data && /activat/i.test(data.message || '')) {
+        // первая отправка с нового адреса — форму нужно активировать (только для владельца)
+        note.style.color = '';
+        note.textContent = 'Почти готово: подтвердите форму по ссылке в письме (это нужно сделать один раз владельцу сайта).';
       } else {
-        throw new Error('bad response');
+        throw new Error((data && data.message) || 'bad response');
       }
     } catch (err) {
       note.style.color = '#b5524f';
