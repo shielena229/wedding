@@ -144,3 +144,32 @@ if (form) {
     }
   });
 }
+
+// ===== Анкета: напитки и трансфер показываем только тем, кто придёт =====
+(function () {
+  const attendeeOnly = document.getElementById('attendee-only');
+  if (!attendeeOnly) return;
+  const rsvpForm = document.getElementById('rsvp-form');
+  const transferRadios = document.querySelectorAll('input[name="Трансфер"]');
+
+  function updateAttendee() {
+    const sel = document.querySelector('input[name="Присутствие"]:checked');
+    // вопросы показываем всем, КРОМЕ тех, кто точно не придёт
+    const showQuestions = !!sel && sel.value !== 'Не смогу прийти';
+    attendeeOnly.hidden = !showQuestions;
+    transferRadios.forEach((r) => { r.required = showQuestions; });
+    if (!showQuestions) {
+      // «Не смогу прийти» — убираем лишние ответы, чтобы не уходили в письмо
+      document
+        .querySelectorAll('input[name="Напитки"]:checked, input[name="Трансфер"]:checked')
+        .forEach((i) => { i.checked = false; });
+    }
+  }
+
+  document.querySelectorAll('input[name="Присутствие"]').forEach((r) => {
+    r.addEventListener('change', updateAttendee);
+  });
+  // после успешной отправки форма сбрасывается — вернуть блок в скрытое состояние
+  if (rsvpForm) rsvpForm.addEventListener('reset', () => setTimeout(updateAttendee, 0));
+  updateAttendee();
+})();
