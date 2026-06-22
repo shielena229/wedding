@@ -1,0 +1,146 @@
+// ===== Дата свадьбы =====
+const WEDDING_DATE = new Date('2026-08-21T15:00:00+03:00');
+
+// ===== Склонение числительных =====
+function plural(n, forms) {
+  // forms: [один, два-четыре, пять+] напр. ['день','дня','дней']
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return forms[0];
+  if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return forms[1];
+  return forms[2];
+}
+
+// ===== Таймер обратного отсчёта =====
+const cd = {
+  days: document.getElementById('cd-days'),
+  hours: document.getElementById('cd-hours'),
+  mins: document.getElementById('cd-mins'),
+  secs: document.getElementById('cd-secs'),
+  daysLbl: document.getElementById('cd-days-lbl'),
+  hoursLbl: document.getElementById('cd-hours-lbl'),
+  minsLbl: document.getElementById('cd-mins-lbl'),
+  secsLbl: document.getElementById('cd-secs-lbl'),
+};
+
+function updateCountdown() {
+  const diff = WEDDING_DATE - new Date();
+
+  if (diff <= 0) {
+    cd.days.textContent = cd.hours.textContent = cd.mins.textContent = cd.secs.textContent = '0';
+    document.querySelector('.countdown__title').textContent = 'Сегодня наш день!';
+    return;
+  }
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  cd.days.textContent = days;
+  cd.hours.textContent = hours;
+  cd.mins.textContent = mins;
+  cd.secs.textContent = secs;
+
+  cd.daysLbl.textContent = plural(days, ['день', 'дня', 'дней']);
+  cd.hoursLbl.textContent = plural(hours, ['час', 'часа', 'часов']);
+  cd.minsLbl.textContent = plural(mins, ['минута', 'минуты', 'минут']);
+  cd.secsLbl.textContent = plural(secs, ['секунда', 'секунды', 'секунд']);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ===== Календарь августа 2026 (Пн–Вс) =====
+function buildCalendar() {
+  const grid = document.getElementById('calendar-grid');
+  if (!grid) return;
+
+  const year = 2026, month = 7; // 7 = август (0-индекс)
+  const target = 21;
+  const daysInMonth = new Date(year, month + 1, 0).getDate(); // 31
+
+  // День недели 1-го числа, понедельник = 0
+  let firstDay = new Date(year, month, 1).getDay(); // 0=Вс
+  firstDay = (firstDay + 6) % 7;
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'calendar__day calendar__day--empty';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar__day';
+    if (d === target) {
+      cell.classList.add('calendar__day--target');
+      cell.innerHTML = '<span>' + d + '</span>';
+    } else {
+      cell.textContent = d;
+    }
+    grid.appendChild(cell);
+  }
+}
+buildCalendar();
+
+// ===== Появление секций при скролле =====
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) {
+      e.target.classList.add('is-visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach((el) => revealObserver.observe(el));
+
+// ===== Подсветка активной точки навигации =====
+const sections = document.querySelectorAll('.section');
+const dots = document.querySelectorAll('.dot');
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      dots.forEach((dot) => {
+        dot.classList.toggle('is-active', dot.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+sections.forEach((s) => navObserver.observe(s));
+
+// ===== Отправка анкеты (AJAX, без перехода со страницы) =====
+const form = document.getElementById('rsvp-form');
+const note = document.getElementById('form-note');
+
+if (form) {
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const btn = form.querySelector('.btn');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Отправляем…';
+    note.style.color = '';
+    note.textContent = '';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        form.reset();
+        note.textContent = 'Спасибо! Ваш ответ отправлен. Ждём встречи 21 августа ♥';
+      } else {
+        throw new Error('bad response');
+      }
+    } catch (err) {
+      note.style.color = '#b5524f';
+      note.textContent = 'Не удалось отправить. Проверьте подключение и попробуйте ещё раз.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+}
