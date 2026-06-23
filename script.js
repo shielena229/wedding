@@ -109,49 +109,19 @@ const navObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.5 });
 sections.forEach((s) => navObserver.observe(s));
 
-// ===== Отправка анкеты (AJAX, без перехода со страницы) =====
-const form = document.getElementById('rsvp-form');
-const note = document.getElementById('form-note');
-
-if (form) {
-  form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const btn = form.querySelector('.btn');
-    const original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Отправляем…';
-    note.style.color = '';
-    note.textContent = '';
-
-    try {
-      // AJAX-адрес FormSubmit — корректно работает из браузера (CORS) и отдаёт JSON
-      const res = await fetch('https://formsubmit.co/ajax/zeferina@mail.ru', {
-        method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: new FormData(form),
-      });
-      const data = await res.json();
-      const ok = data && (data.success === 'true' || data.success === true);
-      if (ok) {
-        form.reset();
-        note.style.color = '';
-        note.textContent = 'Спасибо! Ваш ответ отправлен. Ждём встречи 21 августа ♥';
-      } else if (data && /activat/i.test(data.message || '')) {
-        // первая отправка с нового адреса — форму нужно активировать (только для владельца)
-        note.style.color = '';
-        note.textContent = 'Почти готово: подтвердите форму по ссылке в письме (это нужно сделать один раз владельцу сайта).';
-      } else {
-        throw new Error((data && data.message) || 'bad response');
-      }
-    } catch (err) {
-      note.style.color = '#b5524f';
-      note.textContent = 'Не удалось отправить. Проверьте подключение и попробуйте ещё раз.';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = original;
-    }
+// ===== Отправка анкеты =====
+// Анкета отправляется классическим способом (обычный POST формы на FormSubmit) —
+// это работает на любом устройстве и в любом браузере, без fetch/CORS.
+// После отправки гость попадает на страницу «Спасибо» (см. _next в index.html).
+// На кнопке показываем «Отправляем…», чтобы не нажимали дважды.
+(function () {
+  const rsvp = document.getElementById('rsvp-form');
+  if (!rsvp) return;
+  rsvp.addEventListener('submit', () => {
+    const btn = rsvp.querySelector('.btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Отправляем…'; }
   });
-}
+})();
 
 // ===== Анкета: напитки и трансфер показываем только тем, кто придёт =====
 (function () {
@@ -169,7 +139,7 @@ if (form) {
     if (!showQuestions) {
       // «Не смогу прийти» — убираем лишние ответы, чтобы не уходили в письмо
       document
-        .querySelectorAll('input[name="Напитки"]:checked, input[name="Трансфер"]:checked')
+        .querySelectorAll('input[name="Напитки[]"]:checked, input[name="Трансфер"]:checked')
         .forEach((i) => { i.checked = false; });
     }
   }
