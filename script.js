@@ -110,18 +110,10 @@ const navObserver = new IntersectionObserver((entries) => {
 sections.forEach((s) => navObserver.observe(s));
 
 // ===== Отправка анкеты =====
-// Анкета отправляется классическим способом (обычный POST формы на FormSubmit) —
-// это работает на любом устройстве и в любом браузере, без fetch/CORS.
-// После отправки гость попадает на страницу «Спасибо» (см. _next в index.html).
-// На кнопке показываем «Отправляем…», чтобы не нажимали дважды.
-(function () {
-  const rsvp = document.getElementById('rsvp-form');
-  if (!rsvp) return;
-  rsvp.addEventListener('submit', () => {
-    const btn = rsvp.querySelector('.btn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Отправляем…'; }
-  });
-})();
+// Анкета уходит ЧИСТО нативно — обычный POST формы на FormSubmit, без какого-либо JS
+// (ни fetch, ни отключения кнопки). Раньше отключение кнопки в момент отправки
+// прерывало submit на части Android-браузеров. Теперь скрипт в отправку не вмешивается —
+// работает на всех устройствах. После отправки гость попадает на thanks.html (см. _next).
 
 // ===== Анкета: напитки и трансфер показываем только тем, кто придёт =====
 (function () {
